@@ -1,0 +1,13 @@
+---
+applications:
+- name: customer
+  host: custhost
+  domain: cfapps.io
+  instances: 1
+  path: target/customer-0.1.jar
+  memory: 750MB
+  random-route: false
+  env:
+    SPRING_PROFILES_ACTIVE: dev
+services:
+- mysql 
