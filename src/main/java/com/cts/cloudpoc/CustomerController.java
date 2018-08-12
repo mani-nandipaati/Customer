@@ -11,6 +11,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -35,8 +36,11 @@ public class CustomerController {
 	@Autowired
 	CustomerRepository customerRepository;
 	
+	/*@Autowired
+	private DiscoveryClient discoveryClient;*/
+	
 	@Autowired
-	private DiscoveryClient discoveryClient;
+	private LoadBalancerClient loadBalancer;
 
 	@Autowired
 	RestTemplate restTemplate;
@@ -77,9 +81,18 @@ public class CustomerController {
 		else{
 			model.put("customer", customer);
 			model.put("loggedTime", Calendar.getInstance().getTime());
-			List<ServiceInstance> instances = discoveryClient.getInstances("account");
+			/*List<ServiceInstance> instances = discoveryClient.getInstances("account");
 			ServiceInstance serviceInstance = instances.get(0);
-			String baseUrl = serviceInstance.getUri().toString();
+			String baseUrl = serviceInstance.getUri().toString();*/
+			ServiceInstance serviceInstance=loadBalancer.choose("account");
+			System.out.println("serviceInstance.getUri()"+serviceInstance.getUri());
+			System.out.println("serviceInstance.getServiceId()"+serviceInstance.getServiceId());
+			System.out.println("serviceInstance.getMetadata()"+serviceInstance.getMetadata());
+			System.out.println("serviceInstance.getHost()"+serviceInstance.getHost());
+			System.out.println("serviceInstance.getPort()"+serviceInstance.getPort());
+			System.out.println("serviceInstance.hashCode()"+serviceInstance.hashCode());
+			System.out.println("serviceInstance.toString()"+serviceInstance.toString());
+			String baseUrl=serviceInstance.getUri().toString();
 			try{
 				String acctNumberUrl = baseUrl +"/account/customer";
 				UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(acctNumberUrl).
